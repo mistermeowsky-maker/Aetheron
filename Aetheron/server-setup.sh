@@ -13,7 +13,7 @@ SUMMARY_LOG="$LOG_DIR/summary.last.log"
 
 DRYRUN=false
 
-# Load common functions
+# Load common functions KORRIGIERT
 if [[ -f "$SCRIPTS_DIR/common.sh" ]]; then
     source "$SCRIPTS_DIR/common.sh"
 else
@@ -257,30 +257,6 @@ service_submenu() {
     esac
 }
 
-password_recovery_menu() {
-    clear
-    echo "===== Password Recovery ====="
-    echo "1) MariaDB"
-    echo "2) PostgreSQL (Coming Soon)"
-    echo "0) Back"
-    read -p "Select service: " choice
-
-    case $choice in
-        1) 
-            if [[ -f "$SCRIPTS_DIR/recover-mariadb-password.sh" ]]; then
-                bash "$SCRIPTS_DIR/recover-mariadb-password.sh"
-            else
-                echo "❌ Recovery script not found: $SCRIPTS_DIR/recover-mariadb-password.sh"
-            fi
-            ;;
-        2) echo "PostgreSQL recovery coming soon..." ;;
-        0) return ;;
-        *) echo "Invalid option" ;;
-    esac
-    
-    read -p "Press Enter to continue..." dummy
-}
-
 main_menu() {
     # Firewall initialisieren beim Start
     if ! $DRYRUN; then
@@ -304,7 +280,6 @@ main_menu() {
         echo "7) Zeige letzte Zusammenfassung"
         echo "8) Script Version anzeigen"
         echo "9) Firewall Status anzeigen"
-        echo "10) Password Recovery"
         echo "0) Exit"
         echo ""
         read -p "Select an option: " choice
@@ -331,7 +306,6 @@ main_menu() {
             9) echo "Firewall Status:";
                sudo firewall-cmd --list-all;
                read -p "Press Enter to continue..." dummy;;
-            10) password_recovery_menu ;;
             0) echo "Exiting..."; exit 0;;
             *) echo "Invalid option";;
         esac
