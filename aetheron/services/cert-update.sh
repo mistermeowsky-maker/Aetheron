@@ -1,1 +1,0 @@
-sudo certbot --webroot -w /var/www/html -d nextcloud.your-domain.com -d wiki.your-domain.com
