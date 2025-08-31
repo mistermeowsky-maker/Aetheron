@@ -1,0 +1,29 @@
+#!/bin/bash
+# Auto-Update Script für Aetheron Server
+# Version: 1.00.00
+
+LOG_FILE="/var/log/aetheron-update.log"
+
+echo "=== Aetheron Auto-Update $(date) ===" | tee -a "$LOG_FILE"
+
+# System Updates
+echo "System updates..." | tee -a "$LOG_FILE"
+sudo pacman -Syu --noconfirm 2>&1 | tee -a "$LOG_FILE"
+
+# Docker Container Updates
+echo "Docker container updates..." | tee -a "$LOG_FILE"
+for container in $(docker ps -q); do
+    container_name=$(docker inspect --format '{{.Name}}' "$container" | sed 's/^\///')
+    image=$(docker inspect --format '{{.Config.Image}}' "$container")
+    
+    echo "Updating $container_name ($image)..." | tee -a "$LOG_FILE"
+    docker pull "$image"
+    docker restart "$container"
+done
+
+# Cleanup
+echo "Cleaning up..." | tee -a "$LOG_FILE"
+docker system prune -f 2>&1 | tee -a "$LOG_FILE"
+sudo pacman -Sc --noconfirm 2>&1 | tee -a "$LOG_FILE"
+
+echo "=== Update completed ===" | tee -a "$LOG_FILE"

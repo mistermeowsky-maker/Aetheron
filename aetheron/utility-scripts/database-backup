@@ -1,0 +1,33 @@
+#!/bin/bash
+# Daily Database Backup Script
+# Version: 1.00.00
+
+BACKUP_DIR="/backup/databases"
+RETENTION_DAYS=30
+DATE=$(date +%Y%m%d_%H%M%S)
+LOG_FILE="/var/log/database-backup.log"
+
+echo "=== Database Backup $(date) ===" | tee -a "$LOG_FILE"
+
+# Backup PostgreSQL (Quasselcore)
+echo "Backing up PostgreSQL..." | tee -a "$LOG_FILE"
+docker exec postgres-container pg_dumpall -U postgres | gzip > "$BACKUP_DIR/postgresql_full_$DATE.sql.gz" 2>> "$LOG_FILE"
+
+# Backup MariaDB 
+echo "Backing up MariaDB..." | tee -a "$LOG_FILE"
+docker exec mariadb-container mysqldump --all-databases -u root | gzip > "$BACKUP_DIR/mariadb_full_$DATE.sql.gz" 2>> "$LOG_FILE"
+
+# Verify backups
+echo "Verifying backups..." | tee -a "$LOG_FILE"
+if [ -s "$BACKUP_DIR/postgresql_full_$DATE.sql.gz" ] && [ -s "$BACKUP_DIR/mariadb_full_$DATE.sql.gz" ]; then
+    echo "Backup successful" | tee -a "$LOG_FILE"
+else
+    echo "Backup failed!" | tee -a "$LOG_FILE"
+    exit 1
+fi
+
+# Cleanup old backups
+echo "Cleaning up old backups..." | tee -a "$LOG_FILE"
+find "$BACKUP_DIR" -name "*.sql.gz" -mtime +$RETENTION_DAYS -delete 2>> "$LOG_FILE"
+
+echo "=== Backup completed ===" | tee -a "$LOG_FILE"
