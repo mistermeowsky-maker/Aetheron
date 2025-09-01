@@ -1,0 +1,16 @@
+services:
+  unrealircd:
+    image: unrealircd/unrealircd:6.1.0
+    container_name: aetheron-unrealircd
+    user: "${UID}:${GID}"
+    environment:
+      - TZ=Europe/Berlin
+    volumes:
+      - /home/ircd/unrealircd/conf:/home/ircd/unrealircd/conf
+      - /home/ircd/unrealircd/ssl:/home/ircd/unrealircd/ssl
+      - /home/ircd/unrealircd/logs:/home/ircd/unrealircd/logs
+      - /home/ircd/unrealircd/data:/home/ircd/unrealircd/data
+    ports:
+      - "6697:6697"
+      - "6997:6997"
+    restart: unless-stopped

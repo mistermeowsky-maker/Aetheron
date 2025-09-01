@@ -1,0 +1,19 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    container_name: aetheron-mariadb
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=aetheron
+      - MARIADB_USER=dbadmin
+      - MARIADB_PASSWORD=${MARIADB_DBADMIN_PASSWORD}
+      - TZ=Europe/Berlin
+    volumes:
+      - ./data/db:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
+    networks:
+      - aetheron
+networks:
+  aetheron:
+    external: true
